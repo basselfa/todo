@@ -1,0 +1,16 @@
+# Configure server context path to match Nginx proxy configuration
+server.servlet.context-path=/api
+
+# Enable debug logging for request/response
+logging.level.org.springframework.web=DEBUG
+logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG
+
+# Database configuration
+spring.application.name=demo
+spring.datasource.url=jdbc:postgresql://localhost:5432/tododb
+spring.datasource.username=basselfa
+spring.datasource.password=1234
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+

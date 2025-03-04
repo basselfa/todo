@@ -1,0 +1,15 @@
+127.0.0.1 - - [03/Mar/2025 23:51:40] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2025 23:51:55] "GET /config.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2025 23:52:00] code 404, message File not found
+127.0.0.1 - - [03/Mar/2025 23:52:00] "GET /static/js/main.js HTTP/1.1" 404 -
+127.0.0.1 - - [03/Mar/2025 23:52:18] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2025 23:54:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2025 23:54:55] "GET /config.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2025 23:54:55] "GET /static/js/main.3fbc7dc2.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Mar/2025 23:54:56] code 404, message File not found
+127.0.0.1 - - [03/Mar/2025 23:54:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Mar/2025 23:54:57] code 404, message File not found
+127.0.0.1 - - [03/Mar/2025 23:54:57] "GET /api/tasks HTTP/1.1" 404 -
+127.0.0.1 - - [03/Mar/2025 23:55:02] code 404, message File not found
+127.0.0.1 - - [03/Mar/2025 23:55:02] "GET /api/tasks HTTP/1.1" 404 -
+127.0.0.1 - - [04/Mar/2025 00:18:15] "GET / HTTP/1.1" 200 -
