@@ -1,5 +1,5 @@
 window.ENV = {
   API_URL: window.location.hostname === 'basselfa.github.io' 
-    ? "https://your-backend-api-url.com/api"  // Replace with your actual production API URL
-    : "http://localhost:8080/api"
-};
+    ? "https://todo-api.basselfa.com/api"  // Production API URL - update this with your actual backend URL
+    : "http://localhost:8080/api"  // Local development API URL
+};;
