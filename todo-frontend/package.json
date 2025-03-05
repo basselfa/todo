@@ -18,7 +18,7 @@
     "eject": "react-scripts eject",
     "serve": "serve -s build"
   },
-  "proxy": "http://localhost:8080/api",
+  "proxy": "http://localhost:10000/api",
   "eslintConfig": {
     "extends": [
       "react-app",
