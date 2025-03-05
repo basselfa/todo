@@ -69,16 +69,20 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '16.20.0'
         cache: 'npm'
         cache-dependency-path: todo-frontend/package-lock.json
     
     - name: Install Dependencies
+      env:
+        NODE_OPTIONS: --openssl-legacy-provider
       run: |
         cd todo-frontend
         npm ci
     
     - name: Build Frontend
+      env:
+        NODE_OPTIONS: --openssl-legacy-provider
       run: |
         cd todo-frontend
         npm run build
