@@ -1,0 +1,79 @@
+name: Deploy to AWS EC2
+
+on:
+  workflow_run:
+    workflows: ["Build and Test"]
+    types:
+      - completed
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Download backend artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-artifact
+          path: artifacts/backend
+      
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-artifact
+          path: artifacts/frontend
+      
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          if_key_exists: replace
+      
+      - name: Deploy to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          # Create deployment package
+          mkdir -p deployment
+          cp -r artifacts/backend/*.jar deployment/app.jar
+          cp -r artifacts/frontend/* deployment/frontend/
+          cp -r scripts/* deployment/scripts/
+          
+          # Make scripts executable
+          chmod +x deployment/scripts/*.sh
+          
+          # Create tar archive
+          tar -czf deployment.tar.gz deployment/
+          
+          # Copy to EC2
+          scp deployment.tar.gz $EC2_USERNAME@$EC2_HOST:~/
+          
+          # Execute deployment commands
+          ssh $EC2_USERNAME@$EC2_HOST << 'EOF'
+            # Extract deployment package
+            mkdir -p ~/app
+            tar -xzf deployment.tar.gz -C ~/app
+            
+            # Stop existing application
+            cd ~/app/deployment/scripts
+            ./stop_application.sh
+            
+            # Setup environment
+            ./before_install.sh
+            
+            # Configure application
+            ./after_install.sh
+            
+            # Start application
+            ./start_application.sh
+            
+            # Cleanup
+            rm -f ~/deployment.tar.gz
+          EOF

@@ -1,0 +1,63 @@
+name: Create Production Configuration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  configure-environment:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Create backend configuration
+        if: ${{ github.event.inputs.environment == 'production' }}
+        env:
+          DB_URL: ${{ secrets.PROD_DB_URL }}
+          DB_USERNAME: ${{ secrets.PROD_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+        run: |
+          mkdir -p todo-backend/src/main/resources
+          cat > todo-backend/src/main/resources/application-prod.yml << EOF
+          spring:
+            datasource:
+              url: ${DB_URL}
+              username: ${DB_USERNAME}
+              password: ${DB_PASSWORD}
+            jpa:
+              hibernate:
+                ddl-auto: update
+              properties:
+                hibernate:
+                  dialect: org.hibernate.dialect.PostgreSQLDialect
+          server:
+            port: 8080
+          EOF
+      
+      - name: Create frontend environment file
+        if: ${{ github.event.inputs.environment == 'production' }}
+        env:
+          API_URL: ${{ secrets.PROD_API_URL }}
+        run: |
+          cat > todo-frontend/.env.production << EOF
+          REACT_APP_API_URL=${API_URL}
+          EOF
+      
+      - name: Commit configuration files
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: '["todo-backend/src/main/resources/application-prod.yml", "todo-frontend/.env.production"]'
+          author_name: GitHub Actions
+          author_email: actions@github.com
+          message: 'Add production configuration files'
+          push: true
