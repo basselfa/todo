@@ -1,3 +1,3 @@
-// window.ENV = {
-//   API_URL: "https://localhost:8080/api"
-// };;
+window.ENV = {
+  API_URL: "http://localhost:8080/api"
+};;
