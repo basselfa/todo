@@ -7,7 +7,9 @@ import '../App.css';
 const App = () => {
 const [tasks, setTasks] = useState([]);
 const [tasksLoaded, setTasksLoaded] = useState(false);
-const [loading, setLoading] = useState(false); // Used in fetchTasks
+// This loading state is used in the fetchTasks function
+// eslint-disable-next-line no-unused-vars
+const [loading, setLoading] = useState(false);
 const history = useHistory();
 
 // Format date to yyyy-MM-dd
