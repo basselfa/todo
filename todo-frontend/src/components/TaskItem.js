@@ -41,6 +41,7 @@ const TaskItem = ({
   };
 
   // Handle due date update using the specialized endpoint
+  // eslint-disable-next-line no-unused-vars
   const handleDueDateChange = async (newDate) => {
     setEditedDueDate(newDate);
     if (!isEditing) {

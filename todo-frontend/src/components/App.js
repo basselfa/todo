@@ -7,7 +7,7 @@ import '../App.css';
 const App = () => {
 const [tasks, setTasks] = useState([]);
 const [tasksLoaded, setTasksLoaded] = useState(false);
-const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false); // Used in fetchTasks
 const history = useHistory();
 
 // Format date to yyyy-MM-dd
@@ -59,6 +59,7 @@ useEffect(() => {
 }, [fetchTasks]);
 
 // GET /tasks/{id} - Fetch a single task
+// eslint-disable-next-line no-unused-vars
 const fetchTask = async (id) => {
   try {
     const response = await axios.get(`${window.ENV?.API_URL || process.env.REACT_APP_API_URL}/tasks/${id}`);
