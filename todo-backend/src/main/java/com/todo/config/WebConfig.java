@@ -11,7 +11,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://your-netlify-app.netlify.app") // Replace with your Netlify domain
+                .allowedOrigins(
+                    "http://localhost:3000",
+                    "https://your-netlify-app.netlify.app" // Replace with your actual Netlify domain
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

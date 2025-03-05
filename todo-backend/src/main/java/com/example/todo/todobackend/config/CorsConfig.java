@@ -14,13 +14,18 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow requests from any origin
-        config.addAllowedOrigin("*");
+        // Allow requests from specific origins including local development and Netlify
+        config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("https://your-netlify-app.netlify.app"); // Replace with your actual Netlify domain
         config.addAllowedHeader("*");
-        config.addAllowedMethod("*");  // Simplified to allow all methods
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("OPTIONS");
         
-        // When using allowedOrigin("*"), allowCredentials must be false
-        config.setAllowCredentials(false);
+        // Now we can enable credentials since we're not using wildcard origins
+        config.setAllowCredentials(true);
         config.setMaxAge(3600L);
         
         source.registerCorsConfiguration("/**", config);
