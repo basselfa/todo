@@ -2,40 +2,34 @@ name: Deploy to Netlify
 
 on:
   push:
-    branches:
-      - main  # Change this to your main branch name if different (e.g., master)
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # You can adjust this to your preferred Node.js version
+          node-version: '18'
           cache: 'npm'
-          cache-dependency-path: './todo-frontend/package-lock.json'
       
       - name: Install dependencies
-        run: |
-          cd todo-frontend
-          npm ci
+        run: npm ci
       
       - name: Build project
-        run: |
-          cd todo-frontend
-          npm run build
+        run: npm run build
       
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v2
         with:
-          publish-dir: './todo-frontend/build'
-          production-branch: main  # Change this to your main branch name if different
+          publish-dir: './build'
+          production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Deploy from GitHub Actions"
           enable-pull-request-comment: true
@@ -44,4 +38,4 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 5
+        timeout-minutes: 1
