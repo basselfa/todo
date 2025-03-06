@@ -65,4 +65,4 @@ jobs:
           echo "2. Build logs at https://app.netlify.com/sites/${{ secrets.NETLIFY_SITE_ID }}/deploys"
 
         
-        1
+        
