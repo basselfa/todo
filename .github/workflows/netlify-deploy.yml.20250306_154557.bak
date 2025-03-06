@@ -47,7 +47,7 @@ jobs:
         run: npm run build:ci
         env:
           CI: false # Prevents treating warnings as errors
-          NODE_OPTIONS: "--openssl-legacy-provider" # Fix OpenSSL issues with Node
+          NODE_OPTIONS: "--max_old_space_size=4096 --openssl-legacy-provider" # Fix OpenSSL issues with Node 18+
       
       - name: Debug build output
         run: ls -la build

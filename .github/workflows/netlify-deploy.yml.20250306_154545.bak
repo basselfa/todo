@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16.14.0'
+          node-version: '18'
           cache: 'npm'
           cache-dependency-path: 'todo-frontend/package-lock.json'
       
@@ -47,7 +47,7 @@ jobs:
         run: npm run build:ci
         env:
           CI: false # Prevents treating warnings as errors
-          NODE_OPTIONS: "--openssl-legacy-provider" # Fix OpenSSL issues with Node
+          NODE_OPTIONS: "--max_old_space_size=4096 --openssl-legacy-provider" # Fix OpenSSL issues with Node 18+
       
       - name: Debug build output
         run: ls -la build

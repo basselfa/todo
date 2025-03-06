@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16.14.0'
+          node-version: '18'
           cache: 'npm'
           cache-dependency-path: 'todo-frontend/package-lock.json'
       
@@ -47,7 +47,7 @@ jobs:
         run: npm run build:ci
         env:
           CI: false # Prevents treating warnings as errors
-          NODE_OPTIONS: "--openssl-legacy-provider" # Fix OpenSSL issues with Node
+          NODE_OPTIONS: "--max_old_space_size=4096 --openssl-legacy-provider" # Fix OpenSSL issues with Node 18+
       
       - name: Debug build output
         run: ls -la build
@@ -55,14 +55,14 @@ jobs:
       - name: Deploy to Netlify
         uses: netlify/actions/cli@master
         with:
-          args: deploy --dir=build --prod
+          args: deploy --dir=./todo-frontend/build --prod
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         
       - name: Verify deployment
         run: |
           echo "Deployment complete! Your site should be live now."
           echo "If you're experiencing issues, please check:"
           echo "1. Netlify site settings at https://app.netlify.com/sites/${{ secrets.NETLIFY_SITE_ID }}/settings/general"
-          echo "2. Build logs at https://app.netlify.com/sites/${{ secrets.NETLIFY_SITE_ID }}/deploys"
-
-        
-        1
+          echo "2. Build logs at https://app.netlify.com/sites/${{ secrets.NETLIFY_SITE_ID }}/deploys"1

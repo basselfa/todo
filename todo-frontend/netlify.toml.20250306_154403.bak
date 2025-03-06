@@ -1,7 +1,7 @@
 # Netlify configuration file
 
 [build]
-  base = "todo-frontend"
+  base = "/"
   publish = "build/"
   command = "NODE_OPTIONS=--openssl-legacy-provider npm run build"
 
