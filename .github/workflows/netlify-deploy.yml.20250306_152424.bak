@@ -44,10 +44,10 @@ jobs:
           fi
       
       - name: Build frontend
-        run: npm run build:ci
+        run: CI=false npm run build
         env:
           CI: false # Prevents treating warnings as errors
-          NODE_OPTIONS: "--max_old_space_size=4096 --openssl-legacy-provider" # Fix OpenSSL issues with Node 18+
+          NODE_OPTIONS: "--max_old_space_size=4096" # Increase memory limit for build
       
       - name: Debug build output
         run: ls -la build

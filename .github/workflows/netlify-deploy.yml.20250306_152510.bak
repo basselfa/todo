@@ -44,7 +44,7 @@ jobs:
           fi
       
       - name: Build frontend
-        run: npm run build:ci
+        run: npm run build
         env:
           CI: false # Prevents treating warnings as errors
           NODE_OPTIONS: "--max_old_space_size=4096 --openssl-legacy-provider" # Fix OpenSSL issues with Node 18+

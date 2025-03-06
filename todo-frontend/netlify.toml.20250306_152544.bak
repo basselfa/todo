@@ -35,11 +35,7 @@
 [context.production.environment]
   REACT_APP_ENV = "production"
   CI = "false"
-  NODE_VERSION = "16.14.0"
-  NODE_OPTIONS = "--openssl-legacy-provider"
 
 [context.deploy-preview.environment]
   REACT_APP_ENV = "preview"
   CI = "false"
-  NODE_VERSION = "16.14.0"
-  NODE_OPTIONS = "--openssl-legacy-provider""
