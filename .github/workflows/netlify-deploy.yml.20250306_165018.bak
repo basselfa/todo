@@ -96,21 +96,21 @@ jobs:
         run: |
           cd todo-frontend
           npm run build
-          
-      - name: Ensure _redirects file is in build directory
-        run: |
-          cd todo-frontend
-          if [ ! -f "build/_redirects" ]; then
-            echo "Copying _redirects file to build directory"
-            cp public/_redirects build/ || echo "/*    /index.html   200" > build/_redirects
-          fi
+      
       - name: Deploy to Netlify
-        uses: netlify/actions/cli@v1
+        uses: nwtgck/actions-netlify@v2
         with:
-          args: deploy --dir=./todo-frontend/build --prod
+          publish-dir: './todo-frontend/build'
+          production-branch: main  # Change this to your main branch name if different
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 5
 
       - name: Verify deployment
         run: |

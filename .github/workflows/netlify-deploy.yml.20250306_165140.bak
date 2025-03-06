@@ -96,14 +96,7 @@ jobs:
         run: |
           cd todo-frontend
           npm run build
-          
-      - name: Ensure _redirects file is in build directory
-        run: |
-          cd todo-frontend
-          if [ ! -f "build/_redirects" ]; then
-            echo "Copying _redirects file to build directory"
-            cp public/_redirects build/ || echo "/*    /index.html   200" > build/_redirects
-          fi
+      
       - name: Deploy to Netlify
         uses: netlify/actions/cli@v1
         with:

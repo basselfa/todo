@@ -3,7 +3,7 @@
 [build]
   base = "todo-frontend"
   publish = "build/"
-  command = "npm run build"
+  command = "NODE_OPTIONS=--openssl-legacy-provider npm run build"
 
 # Redirects and rewrites
 [[redirects]]
@@ -42,4 +42,4 @@
   REACT_APP_ENV = "preview"
   CI = "false"
   NODE_VERSION = "16.14.0"
-  NODE_OPTIONS = "--max-old-space-size=4096""
+  NODE_OPTIONS = "--openssl-legacy-provider""
