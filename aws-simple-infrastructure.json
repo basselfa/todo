@@ -1,0 +1,219 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Simple AWS infrastructure for Todo application",
+  "Parameters": {
+    "FrontendBucketName": {
+      "Type": "String",
+      "Description": "Name of the S3 bucket for frontend hosting (must be globally unique)",
+      "AllowedPattern": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
+    },
+    "BackendBucketName": {
+      "Type": "String",
+      "Description": "Name of the S3 bucket for backend deployment files (must be globally unique)",
+      "AllowedPattern": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
+    }
+  },
+  "Resources": {
+    "FrontendBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": { "Ref": "FrontendBucketName" },
+        "WebsiteConfiguration": {
+          "IndexDocument": "index.html",
+          "ErrorDocument": "index.html"
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": false,
+          "BlockPublicPolicy": false,
+          "IgnorePublicAcls": false,
+          "RestrictPublicBuckets": false
+        }
+      }
+    },
+    "FrontendBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": { "Ref": "FrontendBucket" },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "s3:GetObject",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  ["arn:aws:s3:::", { "Ref": "FrontendBucket" }, "/*"]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BackendBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": { "Ref": "BackendBucketName" }
+      }
+    },
+    "CloudFrontDistribution": {
+      "Type": "AWS::CloudFront::Distribution",
+      "Properties": {
+        "DistributionConfig": {
+          "Origins": [
+            {
+              "DomainName": {
+                "Fn::GetAtt": ["FrontendBucket", "RegionalDomainName"]
+              },
+              "Id": "S3Origin",
+              "S3OriginConfig": {
+                "OriginAccessIdentity": ""
+              }
+            }
+          ],
+          "Enabled": true,
+          "DefaultRootObject": "index.html",
+          "DefaultCacheBehavior": {
+            "TargetOriginId": "S3Origin",
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "AllowedMethods": ["GET", "HEAD", "OPTIONS"],
+            "CachedMethods": ["GET", "HEAD"],
+            "ForwardedValues": {
+              "QueryString": false,
+              "Cookies": { "Forward": "none" }
+            },
+            "MinTTL": 0,
+            "DefaultTTL": 3600,
+            "MaxTTL": 86400
+          },
+          "CustomErrorResponses": [
+            {
+              "ErrorCode": 404,
+              "ResponseCode": 200,
+              "ResponsePagePath": "/index.html"
+            }
+          ],
+          "PriceClass": "PriceClass_100"
+        }
+      }
+    },
+    "ElasticBeanstalkApplication": {
+      "Type": "AWS::ElasticBeanstalk::Application",
+      "Properties": {
+        "ApplicationName": "todo-app",
+        "Description": "Todo Application Backend"
+      }
+    },
+    "ElasticBeanstalkEnvironment": {
+      "Type": "AWS::ElasticBeanstalk::Environment",
+      "Properties": {
+        "ApplicationName": { "Ref": "ElasticBeanstalkApplication" },
+        "EnvironmentName": "todo-app-env",
+        "SolutionStackName": "64bit Amazon Linux 2023 v4.2.0 running Corretto 17",
+        "OptionSettings": [
+          {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "InstanceType",
+            "Value": "t2.micro"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:environment",
+            "OptionName": "EnvironmentType",
+            "Value": "SingleInstance"
+          }
+        ]
+      }
+    },
+    "DeploymentUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "todo-app-deployment-user",
+        "Path": "/"
+      }
+    },
+    "DeploymentUserPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "todo-app-deployment-policy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:ListBucket"
+              ],
+              "Resource": [
+                { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "FrontendBucket" }]] },
+                { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "FrontendBucket" }, "/*"]] },
+                { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "BackendBucket" }]] },
+                { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "BackendBucket" }, "/*"]] }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cloudfront:CreateInvalidation"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "elasticbeanstalk:CreateApplicationVersion",
+                "elasticbeanstalk:UpdateEnvironment"
+              ],
+              "Resource": "*"
+            }
+          ]
+        },
+        "Users": [{ "Ref": "DeploymentUser" }]
+      }
+    },
+    "DeploymentUserAccessKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": { "Ref": "DeploymentUser" }
+      }
+    }
+  },
+  "Outputs": {
+    "FrontendBucketName": {
+      "Description": "Name of the S3 bucket for frontend hosting",
+      "Value": { "Ref": "FrontendBucket" }
+    },
+    "BackendBucketName": {
+      "Description": "Name of the S3 bucket for backend deployment files",
+      "Value": { "Ref": "BackendBucket" }
+    },
+    "CloudFrontDistributionId": {
+      "Description": "ID of the CloudFront distribution",
+      "Value": { "Ref": "CloudFrontDistribution" }
+    },
+    "CloudFrontDomainName": {
+      "Description": "Domain name of the CloudFront distribution",
+      "Value": { "Fn::GetAtt": ["CloudFrontDistribution", "DomainName"] }
+    },
+    "ElasticBeanstalkEnvironmentURL": {
+      "Description": "URL of the Elastic Beanstalk environment",
+      "Value": { "Fn::GetAtt": ["ElasticBeanstalkEnvironment", "EndpointURL"] }
+    },
+    "DeploymentUserAccessKeyId": {
+      "Description": "Access Key ID for the deployment user",
+      "Value": { "Ref": "DeploymentUserAccessKey" }
+    },
+    "DeploymentUserSecretAccessKey": {
+      "Description": "Secret Access Key for the deployment user",
+      "Value": { "Fn::GetAtt": ["DeploymentUserAccessKey", "SecretAccessKey"] }
+    },
+    "Region": {
+      "Description": "AWS Region",
+      "Value": { "Ref": "AWS::Region" }
+    }
+  }
+}
