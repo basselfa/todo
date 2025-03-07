@@ -22,4 +22,4 @@ jobs:
       - name: Build and analyze
         env: 
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B -f todo/todo-backend/pom.xml verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=basselfa_todo
+        run: mvn -B -f todo-backend/pom.xml verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=basselfa_todo
