@@ -16,8 +16,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         
         // Allow requests from specific origins including local development and Netlify
-        config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedOrigin("https://your-netlify-app.netlify.app"); // Replace with your actual Netlify domain
+        // config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("*"); // Replace with your actual Netlify domain
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
