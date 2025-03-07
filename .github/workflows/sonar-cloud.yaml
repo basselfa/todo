@@ -1,23 +1,14 @@
-name: Backend SonarQube
+name: SonarQube
 on:
   push:
     branches:
       - main
-    paths:
-      - 'todo-backend/**'
-      - '.github/workflows/sonarqube.yml'
   pull_request:
     types: [opened, synchronize, reopened]
-    paths:
-      - 'todo-backend/**'
-      - '.github/workflows/sonarqube.yml'
 jobs:
   build:
-    name: Build and analyze backend
+    name: Build and analyze
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: todo-backend
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,7 +17,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu'
+          distribution: 'zulu' # Alternative distribution options are available.
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
@@ -37,7 +28,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('todo/todo-backend/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('/todo/todo-backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build and analyze
         env:
