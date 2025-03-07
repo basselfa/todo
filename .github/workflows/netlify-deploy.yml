@@ -3,8 +3,8 @@ name: Deploy Frontend to Netlify with SonarCloud Analysis
 on:
   push:
     branches:
-      - main  # Change this to your main branch name if different (e.g., master)
-  workflow_dispatch:  # Allows manual triggering of the workflow
+      - main  
+  workflow_dispatch:  
 # s
 jobs:
   sonarcloud:
@@ -39,8 +39,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
 
   build-and-deploy:
     runs-on: ubuntu-latest
