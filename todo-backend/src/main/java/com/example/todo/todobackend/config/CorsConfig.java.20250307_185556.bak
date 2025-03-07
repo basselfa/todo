@@ -15,12 +15,9 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // Using allowedOriginPatterns instead of allowedOrigins for more flexibility with credentials
-        config.addAllowedOriginPattern("http://localhost:[*]");  // Allows any localhost port
-        config.addAllowedOriginPattern("https://*.netlify.app");  // Allows any Netlify subdomain
-        // Add any other specific origins if needed
-        // config.addAllowedOriginPattern("https://your-specific-domain.com");
-        
+        // Allow requests from specific origins including local development and Netlify
+        // config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("*"); // Replace with your actual Netlify domain
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
@@ -28,7 +25,7 @@ public class CorsConfig {
         config.addAllowedMethod("DELETE");
         config.addAllowedMethod("OPTIONS");
         
-        // Now we can safely enable credentials with patterns
+        // Now we can enable credentials since we're not using wildcard origins
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
         
