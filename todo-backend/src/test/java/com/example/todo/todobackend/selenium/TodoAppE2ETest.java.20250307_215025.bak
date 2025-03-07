@@ -3,9 +3,7 @@ package com.example.todo.todobackend.selenium;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.io.InputStream;
 import java.util.List;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.AfterEach;
@@ -188,9 +186,14 @@ import io.github.bonigarcia.wdm.WebDriverManager;
         
         for (WebElement task : tasks) {
             WebElement taskTitleElement = task.findElement(By.className("task-title"));
-            // Print to both logger and standard output to ensure visibility
-            // Also try printing stack trace to see where we are
-            new Exception("Debug stack trace for log location").printStackTrace();
+            logger.info("Task title: " + taskTitleElement.getText());
+            logger.info("Task title: " + taskTitleElement.getText());
+            logger.info("Task title: " + taskTitleElement.getText());
+            logger.info("Task title: " + taskTitleElement.getText());
+            logger.info("Task title: " + taskTitleElement.getText());
+            logger.info("Task title: " + taskTitleElement.getText());
+            logger.info("Task title: " + taskTitleElement.getText());
+            logger.info("Task title: " + taskTitleElement.getText());
             if (taskTitleElement.getText().equals(taskTitle)) {
                 taskFound = true;
                 createdTask = task;
@@ -248,16 +251,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
         slowDown(); // Slow down after verifying update
         
         // Delete the task
-        // Find the task with the updated title
-        String updatedTaskTitle = taskTitle + " (Updated)";
-        WebElement taskToDelete = findTaskElementByTitle(updatedTaskTitle);
-        // assertNotNull(taskToDelete, "Task with updated title should be found");
-        
-        // Find and click the delete button within this specific task
-        WebElement deleteButton = taskToDelete.findElement(By.xpath(".//button[text()='Delete']"));
+        WebElement deleteButton = driver.findElement(By.xpath("//button[text()='Delete']"));
         deleteButton.click();
-        logger.info("Deleting task with title: " + updatedTaskTitle);
-        System.out.println("!!! DELETING TASK: " + updatedTaskTitle + " !!!");
         slowDown(); // Slow down after clicking delete
 
         // Verify the task was deleted
@@ -354,11 +349,9 @@ import io.github.bonigarcia.wdm.WebDriverManager;
         
         WebElement dueDateInput = driver.findElement(By.id("due-date"));
         dueDateInput.clear();
-        dueDateInput.sendKeys(dueDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+        dueDateInput.sendKeys(dueDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
         slowDown(); // Slow down after entering date
-        slowDown(); // Slow down after entering date
-
-
+        
         // Submit the form
         WebElement addButton = driver.findElement(By.xpath("//button[text()='Add Task']"));
         addButton.click();
@@ -379,26 +372,6 @@ import io.github.bonigarcia.wdm.WebDriverManager;
             return false;
         } catch (Exception e) {
             return false;
-        }
-    }
-    private WebElement findTaskElementByTitle(String title) {
-        try {
-            List<WebElement> tasks = driver.findElements(By.className("task-item"));
-            for (WebElement task : tasks) {
-                WebElement taskTitleElement = task.findElement(By.className("task-title"));
-                logger.info("Checking task title: " + taskTitleElement.getText());
-                System.out.println("!!! CHECKING TASK: " + taskTitleElement.getText() + " !!!");
-                if (taskTitleElement.getText().equals(title)) {
-                    logger.info("Found task with title: " + title);
-                    System.out.println("!!! FOUND TASK: " + title + " !!!");
-                    return task;
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            logger.severe("Error finding task by title: " + e.getMessage());
-            e.printStackTrace();
-            return null;
         }
     }
 }
