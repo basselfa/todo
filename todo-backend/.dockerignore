@@ -1,0 +1,30 @@
+# Maven build directories
+target/
+!target/*.jar
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Git files
+.git/
+.gitignore
+
+# Logs
+logs/
+*.log
+
+# Test reports
+test-output/
+reports/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak

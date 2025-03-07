@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: todo-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      # Uncomment for PostgreSQL
+      # - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/tododb
+      # - SPRING_DATASOURCE_USERNAME=postgres
+      # - SPRING_DATASOURCE_PASSWORD=postgres
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    # Uncomment for PostgreSQL
+    # depends_on:
+    #   - db
+
+  # Uncomment to use PostgreSQL instead of H2
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: todo-db
+  #   environment:
+  #     - POSTGRES_DB=tododb
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+# Uncomment for PostgreSQL
+# volumes:
+#   postgres_data:

@@ -1,0 +1,26 @@
+# Build Stage
+FROM maven:3.8.6-openjdk-11-slim AS build
+
+WORKDIR /app
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Runtime Stage
+FROM openjdk:11-jre-slim
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+COPY src/main/resources/application.properties /app/application.properties
+# COPY src/main/resources/application-prod.yml /app/application-prod.yml
+COPY src/main/resources/keystore.p12 /app/keystore.p12
+
+RUN mkdir -p /app/data
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
