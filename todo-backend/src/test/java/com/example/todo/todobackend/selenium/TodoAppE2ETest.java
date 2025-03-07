@@ -35,7 +35,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
     private static final String BASE_URL = "https://todobf.netlify.app/";
     // Set to true by default for CI environments, can be overridden with system property
     private static final boolean HEADLESS_MODE = Boolean.parseBoolean(
-            System.getProperty("selenium.headless", "false"));
+            System.getProperty("selenium.headless", "true"));
     // Delay between actions in milliseconds, can be set via system property
     private static final int ACTION_DELAY = Integer.parseInt(
             System.getProperty("selenium.delay", "500"));
