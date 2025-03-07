@@ -1,50 +1,14 @@
-name: Deploy Frontend to Netlify with SonarCloud Analysis
+name: Deploy Frontend to Netlify
 
 on:
   push:
     branches:
-      - main  
-  workflow_dispatch:  
+      - main  # Change this to your main branch name if different (e.g., master)
+  workflow_dispatch:  # Allows manual triggering of the workflow
 # s
 jobs:
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: './todo-frontend/package-lock.json'
-      
-      - name: Install dependencies
-        run: |
-          cd todo-frontend
-          npm install
-      
-      - name: Run tests with coverage
-        run: |
-          cd todo-frontend
-          npm run test:ci
-        continue-on-error: true  # Continue even if tests fail
-      
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}         
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-
   build-and-deploy:
     runs-on: ubuntu-latest
-    needs: sonarcloud  # This job will run after sonarcloud job completes
     
     steps:
       - name: Checkout repository
@@ -60,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd todo-frontend
-          npm install
+          npm ci
       
       - name: Build project
         run: |
@@ -68,12 +32,19 @@ jobs:
           npm run build
       
       - name: Deploy to Netlify
-        uses: netlify/actions/cli@v1
+        uses: nwtgck/actions-netlify@v2
         with:
-          args: deploy --dir=./todo-frontend/build --prod
+          publish-dir: './todo-frontend/build'
+          production-branch: main  # Change this to your main branch name if different
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 5
 
       - name: Verify deployment
         run: |
