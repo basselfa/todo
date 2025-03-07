@@ -25,7 +25,7 @@
       "eject": "react-scripts eject",
       "serve": "serve -s build"
     },
-    "proxy": "http://localhost:8080/api",
+    "proxy": "https://todo-rwzo.onrender.com//api",
     "eslintConfig": {
       "extends": [
         "react-app",
