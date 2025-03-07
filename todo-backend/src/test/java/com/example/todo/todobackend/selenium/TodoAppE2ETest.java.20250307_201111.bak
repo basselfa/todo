@@ -1,0 +1,292 @@
+package com.example.todo.todobackend.selenium;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * End-to-End tests for the Todo application using Selenium WebDriver.
+ * Tests the integration between frontend and backend by simulating user interactions.
+ */
+ class TodoAppE2ETest {
+
+    private WebDriver driver;
+    private WebDriverWait wait;
+    private static final String BASE_URL = "https://todobf.netlify.app/";
+    
+    @BeforeAll
+     static void setupClass() {
+        // Setup WebDriverManager to automatically download and configure ChromeDriver
+        WebDriverManager.chromedriver().setup();
+    }
+
+    @BeforeEach
+     void setUp() {
+        // Configure Chrome to run in headless mode (no UI)
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-allow-origins=*");
+        
+        // Initialize the WebDriver
+        driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        
+        // Open the application
+        driver.get(BASE_URL);
+    }
+
+    @AfterEach
+     void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    /**
+     * Test the core functionality of the Todo application:
+     * 1. Load the application
+     * 2. Add a new task
+     * 3. Fetch and verify tasks are displayed
+     * 4. Mark a task as completed
+     * 5. Delete a task
+     */
+    @Test
+     void testTodoAppCoreFeatures() {
+        // Verify the page has loaded correctly
+        String pageTitle = driver.getTitle();
+        assertTrue(pageTitle.contains("Todo") || pageTitle.contains("Task"), 
+                "Page title should contain 'Todo' or 'Task'");
+        
+        // Verify the main heading is present
+        WebElement heading = driver.findElement(By.tagName("h1"));
+        assertEquals("Todo List", heading.getText(), "Main heading should be 'Todo List'");
+        
+        // Create a new task
+        String taskTitle = "Test Task " + System.currentTimeMillis();
+        String taskDescription = "This is a test task created by Selenium";
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        String dueDate = tomorrow.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        
+        // Fill out the task form
+        WebElement titleInput = driver.findElement(By.xpath("//input[@placeholder='Enter new task']"));
+        titleInput.sendKeys(taskTitle);
+        
+        WebElement descriptionInput = driver.findElement(By.xpath("//textarea[@placeholder='Description (optional)']"));
+        descriptionInput.sendKeys(taskDescription);
+        
+        WebElement prioritySelect = driver.findElement(By.xpath("//select"));
+        prioritySelect.click();
+        WebElement highPriorityOption = driver.findElement(By.xpath("//option[@value='HIGH']"));
+        highPriorityOption.click();
+        
+        WebElement dueDateInput = driver.findElement(By.id("due-date"));
+        dueDateInput.sendKeys(dueDate);
+        
+        // Submit the form
+        WebElement addButton = driver.findElement(By.xpath("//button[text()='Add Task']"));
+        addButton.click();
+        
+        // Click "Fetch Tasks" button to navigate to tasks list
+        WebElement fetchTasksButton = driver.findElement(By.xpath("//button[text()='Fetch Tasks']"));
+        fetchTasksButton.click();
+        
+        // Wait for the tasks to load
+        wait.until(ExpectedConditions.urlContains("/tasksShown"));
+        
+        // Verify the task was added
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.className("task-item")));
+        List<WebElement> tasks = driver.findElements(By.className("task-item"));
+        assertFalse(tasks.isEmpty(), "Task list should not be empty");
+        
+        // Find our created task
+        boolean taskFound = false;
+        WebElement createdTask = null;
+        
+        for (WebElement task : tasks) {
+            WebElement taskTitleElement = task.findElement(By.className("task-title"));
+            if (taskTitleElement.getText().equals(taskTitle)) {
+                taskFound = true;
+                createdTask = task;
+                break;
+            }
+        }
+        
+        assertTrue(taskFound, "Created task should be found in the task list");
+        
+        // Verify task details
+        WebElement taskDescriptionElement = createdTask.findElement(By.className("task-description"));
+        assertEquals(taskDescription, taskDescriptionElement.getText(), "Task description should match");
+        
+        WebElement priorityBadge = createdTask.findElement(By.className("priority-badge"));
+        assertEquals("HIGH", priorityBadge.getText(), "Task priority should be HIGH");
+        
+        WebElement taskDate = createdTask.findElement(By.className("task-date"));
+        assertEquals(dueDate, taskDate.getText(), "Task due date should match");
+        
+        // Mark task as completed
+        WebElement checkbox = createdTask.findElement(By.xpath(".//input[@type='checkbox']"));
+        checkbox.click();
+        
+        // Wait for the task to be marked as completed (look for line-through style)
+        wait.until(ExpectedConditions.attributeContains(
+                createdTask.findElement(By.className("task-title")), 
+                "style", 
+                "line-through"));
+        
+        // Edit the task
+        WebElement editButton = createdTask.findElement(By.xpath(".//button[text()='Edit']"));
+        editButton.click();
+        
+        // Wait for edit form to appear
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("task-edit-form")));
+        
+        // Update task title
+        String updatedTitle = taskTitle + " (Updated)";
+        WebElement editTitleInput = createdTask.findElement(By.className("edit-input"));
+        editTitleInput.clear();
+        editTitleInput.sendKeys(updatedTitle);
+        
+        // Save the changes
+        WebElement saveButton = createdTask.findElement(By.xpath(".//button[text()='Save']"));
+        saveButton.click();
+        
+        // Verify the task was updated
+        wait.until(ExpectedConditions.textToBe(
+                By.xpath("//span[contains(@class, 'task-title') and contains(text(), '" + updatedTitle + "')]"),
+                updatedTitle));
+        
+        // Delete the task
+        WebElement deleteButton = driver.findElement(By.xpath("//button[text()='Delete']"));
+        deleteButton.click();
+        
+        // Wait for the task to be removed from the DOM
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(
+                By.xpath("//span[contains(@class, 'task-title') and contains(text(), '" + updatedTitle + "')]")));
+        
+        // Verify the task was deleted
+        tasks = driver.findElements(By.className("task-item"));
+        boolean taskStillExists = false;
+        
+        for (WebElement task : tasks) {
+            try {
+                WebElement taskTitleElement = task.findElement(By.className("task-title"));
+                if (taskTitleElement.getText().equals(updatedTitle)) {
+                    taskStillExists = true;
+                    break;
+                }
+            } catch (Exception e) {
+                // Element might be stale, continue
+            }
+        }
+        
+        assertFalse(taskStillExists, "Task should be deleted from the list");
+    }
+    
+    /**
+     * Test task filtering functionality:
+     * 1. Create tasks with different priorities
+     * 2. Filter tasks by priority
+     */
+    @Test
+    public void testTaskFiltering() {
+        // Navigate to the task page
+        driver.get(BASE_URL);
+        
+        // Create tasks with different priorities
+        createTask("High Priority Task", "High priority description", "HIGH", LocalDate.now().plusDays(1));
+        createTask("Medium Priority Task", "Medium priority description", "MEDIUM", LocalDate.now().plusDays(2));
+        createTask("Low Priority Task", "Low priority description", "LOW", LocalDate.now().plusDays(3));
+        
+        // Click "Fetch Tasks" button to navigate to tasks list
+        WebElement fetchTasksButton = driver.findElement(By.xpath("//button[text()='Fetch Tasks']"));
+        fetchTasksButton.click();
+        
+        // Wait for the tasks to load
+        wait.until(ExpectedConditions.urlContains("/tasksShown"));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.className("task-item")));
+        
+        // Verify all three tasks are present
+        List<WebElement> tasks = driver.findElements(By.className("task-item"));
+        assertTrue(tasks.size() >= 3, "At least 3 tasks should be present");
+        
+        // Verify we can find our created tasks
+        boolean highFound = findTaskByTitle("High Priority Task");
+        boolean mediumFound = findTaskByTitle("Medium Priority Task");
+        boolean lowFound = findTaskByTitle("Low Priority Task");
+        
+        assertTrue(highFound, "High priority task should be found");
+        assertTrue(mediumFound, "Medium priority task should be found");
+        assertTrue(lowFound, "Low priority task should be found");
+    }
+    
+    /**
+     * Helper method to create a task with specified details
+     */
+    private void createTask(String title, String description, String priority, LocalDate dueDate) {
+        // Fill out the task form
+        WebElement titleInput = driver.findElement(By.xpath("//input[@placeholder='Enter new task']"));
+        titleInput.clear();
+        titleInput.sendKeys(title);
+        
+        WebElement descriptionInput = driver.findElement(By.xpath("//textarea[@placeholder='Description (optional)']"));
+        descriptionInput.clear();
+        descriptionInput.sendKeys(description);
+        
+        WebElement prioritySelect = driver.findElement(By.xpath("//select"));
+        prioritySelect.click();
+        WebElement priorityOption = driver.findElement(By.xpath("//option[@value='" + priority + "']"));
+        priorityOption.click();
+        
+        WebElement dueDateInput = driver.findElement(By.id("due-date"));
+        dueDateInput.clear();
+        dueDateInput.sendKeys(dueDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        
+        // Submit the form
+        WebElement addButton = driver.findElement(By.xpath("//button[text()='Add Task']"));
+        addButton.click();
+        
+        // Wait briefly for the task to be added
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+    
+    /**
+     * Helper method to find a task by its title
+     */
+    private boolean findTaskByTitle(String title) {
+        try {
+            List<WebElement> taskTitles = driver.findElements(By.className("task-title"));
+            for (WebElement taskTitle : taskTitles) {
+                if (taskTitle.getText().equals(title)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

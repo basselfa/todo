@@ -27,6 +27,7 @@ public class CorsConfig {
         config.addAllowedMethod("PUT");
         config.addAllowedMethod("DELETE");
         config.addAllowedMethod("OPTIONS");
+        config.addAllowedMethod("PATCH");
         
         // Now we can safely enable credentials with patterns
         config.setAllowCredentials(true);
