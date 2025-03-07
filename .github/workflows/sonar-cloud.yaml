@@ -20,6 +20,6 @@ jobs:
           distribution: 'zulu' # Alternative distribution options are available.
 
       - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=asr
+      env: 
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn -B -f todo/backend/pom.xml verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=basselfa_todo
