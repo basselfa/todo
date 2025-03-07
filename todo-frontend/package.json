@@ -17,15 +17,16 @@
       "sharp": "^0.33.5"
     },
     "scripts": {
-      "start": "react-scripts start",
+      "start": "cp public/config.prod.js public/config.js && react-scripts start",
       "build": "react-scripts build",
       "build:ci": "react-scripts build",
       "test": "react-scripts test",
       "test:ci": "react-scripts test --coverage --watchAll=false --passWithNoTests",
       "eject": "react-scripts eject",
-      "serve": "serve -s build"
+      "serve": "serve -s build",
+      "start:local": "cp public/config.testing.js public/config.js && react-scripts start"
     },
-    "proxy": "https://todo-rwzo.onrender.com/api",
+    "proxy": "http://localhost:8080/api",
     "eslintConfig": {
       "extends": [
         "react-app",
